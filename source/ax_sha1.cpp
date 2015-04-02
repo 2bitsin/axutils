@@ -103,7 +103,7 @@ void ax::util::sha1::complete () {
         std::fill (mbuffer_, mbuffer_ + 56, 0);
     }    
     reinterpret_cast<std::uint64_t &> (mbuffer_ [56]) =
-        ax::util::byte_swap (length_);
+        ax::util::host_to_network_byte_order (length_);
     digest ();
     mfinal_ = true;
 }
