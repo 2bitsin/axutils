@@ -1,5 +1,6 @@
 #define _SCL_SECURE_NO_WARNINGS
 #include "ax_sha1.hpp"
+#include "ax_byte_swap.hpp"
 #include <cstring>
 #include <algorithm>
 
@@ -60,79 +61,34 @@ namespace _imp {
             auto const Size = sizeof (Type) << 3;
             return (in << Bits)|(in >> (Size - Bits));
         }
-
-    template <unsigned N> struct ui;
-
-    template <> struct ui<8> { typedef std::uint8_t type ; };
-    template <> struct ui<16> { typedef std::uint16_t type ; };
-    template <> struct ui<32> { typedef std::uint32_t type ; };
-    template <> struct ui<64> { typedef std::uint64_t type ; };
-
-    template <unsigned FullSize> 
-        struct swap {
-            static auto const HalfSize = FullSize >> 1;
-            typedef typename ui<FullSize>::type type;
-            typedef typename ui<HalfSize>::type half_type;            
-            static inline type value (type const &i) {                
-                return swap<HalfSize>::value (half_type (i >> HalfSize))|
-                    (type (swap<HalfSize>::value (half_type (i))) << HalfSize);
-            }
-        };
-    template <>
-        struct swap<8> {
-            typedef ui<8>::type type;
-            static inline type value (type const &i){
-                return i;
-            }
-        };
-
-    template <typename Type>
-        Type byte_swap (Type const &i){
-            return swap<(sizeof (Type) << 3)>::value (i);
-        } 
 }
 
 void ax::util::sha1::digest () {
-
-    typedef std::uint32_t (*xop_t) (
-        std::uint32_t d1, 
-        std::uint32_t d2, 
-        std::uint32_t d3);
-
-    static xop_t const xop_ [4] = {
-        [] (std::uint32_t d1, std::uint32_t d2, std::uint32_t d3) { 
-            return (d1 & d2) | ((~d1) & d3) ; },
-        [] (std::uint32_t d1, std::uint32_t d2, std::uint32_t d3) { 
-            return d1 ^ d2 ^ d3 ; },
-        [] (std::uint32_t d1, std::uint32_t d2, std::uint32_t d3) { 
-            return (d1 & d2) | (d1 & d3) | (d2 & d3) ; },
-        xop_ [1]
-    };
-
     auto u32buff_ = reinterpret_cast<
         std::uint32_t const (&) [16]> (mbuffer_);    
-    static const std::uint32_t k [] = {
-        0x5A827999, 0x6ED9EBA1, 
-        0x8F1BBCDC, 0xCA62C1D6};        
     auto w = std::array <std::uint32_t, 80> ();
     auto d = digest_;
 
-    for (auto t = 0; t < 80; ++t) {     
-        auto const s = t / 20;
-        w [t] = t >= 16 ? _imp::bit_rotate_left<1> (
-            w [t-3] ^ w [t-8] ^ w [t-14] ^ w [t-16]):
-            _imp::byte_swap (u32buff_ [t]);
-        d [4] = xop_ [s] (d [1], d [2], d [3]) + 
-            _imp::bit_rotate_left<5>(d [0]) + 
-            d [4] + w [t] + k [s];            
-        d [1] = _imp::bit_rotate_left<30> (d [1]);            
-        std::rotate (std::rbegin (d), 
-            std::rbegin (d) + 1, 
-            std::rend (d));        
-    }
-    for (auto i = 0; i < 5; ++i)
-        digest_ [i] += d [i];
+    static auto const iterate_ = [] (auto &d, auto const &w, auto t, auto v) {
+        d [4] = _imp::bit_rotate_left<5> (d [0]) + d [4] + w [t] + v;
+        d [1] = _imp::bit_rotate_left<30> (d [1]);
+        std::rotate (std::rbegin (d), std::rbegin (d) + 1, std::rend (d));        
+    };
 
+    for (auto t = 0; t < 16; ++t) 
+        w [t] = ax::util::host_to_network_byte_order (u32buff_ [t]);    
+    for (auto t = 16; t < 80; ++t) 
+        w [t] = _imp::bit_rotate_left<1> (w [t-3] ^ w [t-8] ^ w [t-14] ^ w [t-16]);  
+    for (auto t = 0; t < 20; ++t)
+        iterate_ (d, w, t, 0x5A827999 + ((d [1] & d [2]) | ((~d [1]) & d [3])));    
+    for (auto t = 20; t < 40; ++t)
+        iterate_ (d, w, t, 0x6ED9EBA1 + (d [1] ^ d [2] ^ d [3] ));    
+    for (auto t = 40; t < 60; ++t)
+        iterate_ (d, w, t, 0x8F1BBCDC + ((d [1] & d [2]) | (d [1] & d [3]) | (d [2] & d [3])));    
+    for (auto t = 60; t < 80; ++t)
+        iterate_ (d, w, t, 0xCA62C1D6 + (d [1] ^ d [2] ^ d [3] ));
+    for (auto i = 0; i < 5; ++i)
+        digest_ [i] = digest_ [i] + d [i];
     mbindex_ = 0;
 }
 
@@ -147,7 +103,7 @@ void ax::util::sha1::complete () {
         std::fill (mbuffer_, mbuffer_ + 56, 0);
     }    
     reinterpret_cast<std::uint64_t &> (mbuffer_ [56]) =
-        _imp::byte_swap (length_);
+        ax::util::byte_swap (length_);
     digest ();
     mfinal_ = true;
 }
