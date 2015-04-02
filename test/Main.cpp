@@ -11,11 +11,14 @@ int main () {
     auto ros0_ = ax::util::raw_ostream (buffer_);
     auto ros1_ = ax::util::raw_ostream (vector_);
 
-    int i ;
-    //std::cin >> i;
-    //auto x = ax::util::network_to_host_byte_order (i);
-    //std::printf ("%08X\n", x);
-
+    double x;
+    std::cin >> x;
+    std::printf ("%016llx\n", *reinterpret_cast<std::uint64_t const*> (&x));
+    x = ax::util::host_to_network_byte_order (x);
+    std::printf ("%016llx\n", *reinterpret_cast<std::uint64_t const*> (&x));
+    x = ax::util::network_to_host_byte_order (x);
+    std::printf ("%016llx\n", *reinterpret_cast<std::uint64_t const*> (&x));
+    std::getchar ();
 
     ax::util::sha1 digest_;
     digest_ (

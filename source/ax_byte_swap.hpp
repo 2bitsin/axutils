@@ -2,7 +2,14 @@
 #define __AX_BYTE_SWAP_HPP__
 
 #include <cstdint>
-
+/*
+ *  Utility for swaping byte order
+ *  Usage:
+ *      out = byte_swap (in) 
+ *      out = host_to_network_byte_order (in) 
+ *      out = network_to_host_byte_order (in) 
+ *      in - any integral or floating point type
+ */
 namespace ax {
     namespace util {
         namespace detail {
@@ -83,18 +90,30 @@ namespace ax {
         }
 
         template <typename _Type>
-            typename std::enable_if<std::is_unsigned<_Type>::value, _Type>::type 
+            typename std::enable_if<std::is_integral<_Type>::value && 
+                std::is_unsigned<_Type>::value, _Type>::type 
                 byte_swap (_Type const &i)
             {
                 return detail::swap<(sizeof (_Type) << 3)>::value (i);
             } 
 
         template <typename _Type> 
-            typename std::enable_if<std::is_signed<_Type>::value, _Type>::type
+            typename std::enable_if<std::is_integral<_Type>::value && 
+                std::is_signed<_Type>::value, _Type>::type
                 byte_swap (_Type const &i)
             {
                 auto val_ = byte_swap (reinterpret_cast<
                     typename std::make_unsigned<_Type>::type const &> (i));
+                return reinterpret_cast<_Type const &>(val_);
+            } 
+
+
+        template <typename _Type> 
+            typename std::enable_if<std::is_floating_point<_Type>::value, _Type>::type
+                byte_swap (_Type const &i)
+            {
+                auto val_ = byte_swap (reinterpret_cast<
+                    typename detail::uint_type<sizeof (_Type) << 3>::type const &> (i));
                 return reinterpret_cast<_Type const &>(val_);
             } 
 
