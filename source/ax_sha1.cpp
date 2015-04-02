@@ -82,11 +82,11 @@ void ax::util::sha1::digest () {
     for (auto t = 0; t < 20; ++t)
         iterate_ (d, w, t, 0x5A827999 + ((d [1] & d [2]) | ((~d [1]) & d [3])));    
     for (auto t = 20; t < 40; ++t)
-        iterate_ (d, w, t, 0x6ED9EBA1 + (d [1] ^ d [2] ^ d [3] ));    
+        iterate_ (d, w, t, 0x6ED9EBA1 + (d [1] ^ d [2] ^ d [3]));    
     for (auto t = 40; t < 60; ++t)
         iterate_ (d, w, t, 0x8F1BBCDC + ((d [1] & d [2]) | (d [1] & d [3]) | (d [2] & d [3])));    
     for (auto t = 60; t < 80; ++t)
-        iterate_ (d, w, t, 0xCA62C1D6 + (d [1] ^ d [2] ^ d [3] ));
+        iterate_ (d, w, t, 0xCA62C1D6 + (d [1] ^ d [2] ^ d [3]));
     for (auto i = 0; i < 5; ++i)
         digest_ [i] = digest_ [i] + d [i];
     mbindex_ = 0;
