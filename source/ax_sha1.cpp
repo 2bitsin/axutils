@@ -1,3 +1,4 @@
+#define _SCL_SECURE_NO_WARNINGS
 #include "ax_sha1.hpp"
 #include <cstring>
 #include <algorithm>
