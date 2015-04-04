@@ -10,15 +10,16 @@ namespace ax {
         struct sha1 {
             typedef std::array<std::uint32_t, 5> value_type;
             sha1 ();
-            sha1 &operator () (void const * data_, std::size_t length_);
-            value_type const &get ();
-            value_type const &get () const;            
+            std::size_t operator () (void const * data_, std::size_t length_);            
+            value_type get () const;   
+            std::string string () const;            
+            value_type const &done ();
         private:
 
             enum { BUFFER_SIZE = 64};
 
-            void digest ();
-            void complete ();
+            void _digest ();
+            void _done ();
 
             std::uint8_t    mbuffer_ [BUFFER_SIZE];
             std::uintptr_t  mbindex_;

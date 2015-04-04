@@ -1,4 +1,5 @@
 #define _SCL_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 #include "ax_sha1.hpp"
 #include "ax_byte_swap.hpp"
 #include <cstring>
@@ -16,10 +17,9 @@ ax::util::sha1::sha1 ()
 {}
 
 
-ax::util::sha1 &
-    ax::util::sha1::operator()(
-        void const * vdata_, 
-        std::size_t len_) 
+std::size_t ax::util::sha1::operator () (
+    void const * vdata_, 
+    std::size_t len_) 
 {
     if (mfinal_) throw std::runtime_error ("SHA-1: already finalized");
     auto const *data_ = reinterpret_cast<
@@ -34,25 +34,32 @@ ax::util::sha1 &
         data_ += l0_;
         if (mbindex_ < BUFFER_SIZE)
             continue;
-        digest ();
+        _digest ();
     }
-    return *this;
+    return len_;
 }
 
-ax::util::sha1::value_type const &
-    ax::util::sha1::get () 
-{
-    if (!mfinal_)
-        complete ();
-    return digest_;
-}
-
-ax::util::sha1::value_type const &
+ax::util::sha1::value_type 
     ax::util::sha1::get () const 
 {
-    if (!mfinal_)
-        throw std::logic_error ("SHA-1: Cannot finalize immutable object");
-    return digest_;
+    auto copy_ = *this;
+    return copy_.done ();
+}
+
+template <typename _Htype>
+static inline auto __to_string (_Htype &&hash_) {
+    static const char format_ [] = "%08X%08X%08X%08X%08X";
+    char buffer_ [48];
+    auto digest_ = std::forward<_Htype> (hash_).get ();
+    std::sprintf (buffer_, format_,        
+        digest_ [0], digest_ [1], 
+        digest_ [2], digest_ [3], 
+        digest_ [4]);
+    return std::string (buffer_, 40);
+}
+
+std::string ax::util::sha1::string () const {
+    return __to_string (*this);
 }
 
 namespace _imp {
@@ -63,7 +70,7 @@ namespace _imp {
         }
 }
 
-void ax::util::sha1::digest () {
+void ax::util::sha1::_digest () {
     auto u32buff_ = reinterpret_cast<
         std::uint32_t const (&) [16]> (mbuffer_);    
     auto w = std::array <std::uint32_t, 80> ();
@@ -92,20 +99,28 @@ void ax::util::sha1::digest () {
     mbindex_ = 0;
 }
 
-void ax::util::sha1::complete () {
+void ax::util::sha1::_done () {
     if (mfinal_)
         return;
 
     mbuffer_ [mbindex_++] = 0x80;
     std::fill (mbuffer_ + mbindex_, mbuffer_ + BUFFER_SIZE, 0);
     if (mbindex_ > 56) {           
-        digest ();
+        _digest ();
         std::fill (mbuffer_, mbuffer_ + 56, 0);
     }    
     reinterpret_cast<std::uint64_t &> (mbuffer_ [56]) =
         ax::util::host_to_network_byte_order (length_);
-    digest ();
+    _digest ();
     mfinal_ = true;
+}
+
+ax::util::sha1::value_type const &
+    ax::util::sha1::done () 
+{
+    if (!mfinal_)
+        _done ();
+    return digest_;
 }
 
 
