@@ -1,30 +1,48 @@
-#ifndef __AX_HBO_SERIALIZE_HPP__
-#define __AX_HBO_SERIALIZE_HPP__
+#ifndef __AX_BINARY_NBO_SERIALIZE_HPP__
+#define __AX_BINARY_NBO_SERIALIZE_HPP__
 
-#include <vector>
-#include <string>
-#include <array>
-#include <initializer_list>
+#include "ax_binary_hbo_serialize.hpp"
+#include "ax_byte_swap.hpp"
+#include <algorithm>
+#include <memory>
 
 namespace ax {
     namespace util{
-        namespace hbo {
+        namespace nbo {
             ///////////////////////////////////////////////////            
-            template <typename _Value>
-            struct serialize {
-                template <typename _Stream>
-                inline static auto &&write (_Stream &&os_, _Value const &val_) {                    
+            template <typename _Vtype>
+            struct serialize_base {
+            protected:
+                template <typename _Iter, typename _Stream>
+                inline static auto &&_write (_Stream &&os_, _Iter begin_, _Iter end_) {
+                    auto len_ = std::distance (begin_, end_);
+                    auto tmp_ = std::make_unique<_Vtype []> (len_);
+                    std::transform (begin_, end_, tmp_.get (),
+                        &host_to_network_byte_order<const _Vtype &>);                    
                     return std::forward<_Stream> (os_) (
-                        &val_, sizeof (val_));
+                        tmp_.get (), sizeof (_Vtype) * len_);
+                }
+            };
+
+
+            template <typename _Value>
+            struct serialize: 
+                serialize_base<_Value> 
+            {
+                template <typename _Stream>
+                inline static auto &&write (_Stream &&os_, _Value const &val_) { 
+                    auto tmp_ = host_to_network_byte_order (val_);
+                    return std::forward<_Stream> (os_) (&tmp_, sizeof (tmp_));
                 }
             };
 
             template <typename _Value, std::size_t _Count>
-            struct serialize<const _Value [_Count]> {
+            struct serialize<const _Value [_Count]>: 
+                serialize_base<_Value>
+            {
                 template <typename _Stream>
                 inline static auto &&write (_Stream &&os_, _Value const (&val_) [_Count]) {
-                    return std::forward<_Stream> (os_) (
-                        &val_ [0], sizeof (val_));
+                    return _write (std::forward<_Stream> (os_), std::begin (val_), std::end (val_));   
                 }
             };
 
@@ -34,7 +52,9 @@ namespace ax {
             {};
 
             template <typename _Value>
-            struct serialize<_Value const *> {
+            struct serialize<_Value const *>:
+                serialize_base<_Value>
+            {
                 template <typename _Stream>
                 inline static auto &&write (_Stream &&os_, _Value const *val_) {
                     static auto const count_ = [] (auto const *val_) {
@@ -42,8 +62,7 @@ namespace ax {
                         while (val_ [len_] != _Value ()) ++len_;
                         return len_;
                     };
-                    return std::forward<_Stream> (os_) (
-                        val_, sizeof (_Value) * count_ (val_));
+                    return _write (std::forward<_Stream> (os_), val_, val_+count_ (val_));
                 }
             };
 
@@ -64,13 +83,14 @@ namespace ax {
 
         ///////////////////////////////////////////////////            
             template <typename _Value>
-            struct serialize<const std::basic_string<_Value>> {
+            struct serialize<const std::basic_string<_Value>>:
+                serialize_base<_Value>
+            {
                 template <typename _Stream>
                 inline static auto &&write (_Stream &&os_, 
                     const std::basic_string<_Value> &val_) 
                 {
-                    return std::forward<_Stream> (os_) (
-                        val_.c_str (), sizeof (_Value) * val_.size ());
+                    return _write (std::forward<_Stream> (os_), std::begin (val_), std::end (val_));
                 }
             };
 
@@ -80,13 +100,14 @@ namespace ax {
             {};
 
             template <typename _Value, std::size_t _Count>
-            struct serialize<const std::array<_Value, _Count>> {
+            struct serialize<const std::array<_Value, _Count>>: 
+                serialize_base<_Value>
+            {
                 template <typename _Stream>
                 inline static auto &&write (_Stream &&os_, 
                     const std::array<_Value, _Count> &val_) 
                 {
-                    return std::forward<_Stream> (os_) (
-                        val_.data (), sizeof (_Value) * val_.size ());
+                    return _write (std::forward<_Stream> (os_), std::begin (val_), std::end (val_));
                 }
             };
                 
@@ -96,13 +117,14 @@ namespace ax {
             {};
 
             template <typename _Value>
-            struct serialize<const std::vector<_Value>> {
+            struct serialize<const std::vector<_Value>>:
+                serialize_base<_Value>
+            {
                 template <typename _Stream>
                 inline static auto &&write (_Stream &&os_, 
                     const std::vector<_Value> &val_) 
                 {
-                    return std::forward<_Stream> (os_) (
-                        val_.data (), sizeof (_Value) * val_.size ());
+                    return _write (std::forward<_Stream> (os_), std::begin (val_), std::end (val_));
                 }
             };
                 
@@ -112,13 +134,14 @@ namespace ax {
             {};
 
             template <typename _Value>
-            struct serialize<const std::initializer_list<_Value>> {
+            struct serialize<const std::initializer_list<_Value>>:
+                serialize_base<_Value>
+            {
                 template <typename _Stream>
                 inline static auto &&write (_Stream &&os_, 
                     const std::initializer_list<_Value> &val_) 
                 {
-                    return std::forward<_Stream> (os_) (
-                        val_.begin (), sizeof (_Value) * val_.size ());
+                    return _write (std::forward<_Stream> (os_), std::begin (val_), std::end (val_));
                 }
             };
                 
@@ -129,5 +152,6 @@ namespace ax {
         }
     }
 }
+
 
 #endif

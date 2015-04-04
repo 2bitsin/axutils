@@ -5,7 +5,10 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <tuple>
 #include "ax_binary_hbo_serialize.hpp"
+#include "ax_binary_nbo_serialize.hpp"
+#include "ax_buffer_writter.hpp"
 /*  
  *  raw_ostream is a wrapper on top of other 
  *  stl containers, file streams or custom callbacks
@@ -16,6 +19,13 @@
  *  If using a container or file with a specific 
  *  char/value_type data will be padded to align 
  *  to size of that particular type.
+ *  usage:
+ *       auto stream = hbo::binary_stream (vector|string|ostream)
+ *       stream << value
+ *       stream.put (value)
+ *   this stream does not own the object it wraps 
+ *   so the object must stay alive until you're 
+ *   done with the stream
  */
   
 namespace ax{
@@ -23,18 +33,16 @@ namespace ax{
 
         template <template <typename> class _Serialize = hbo::serialize>
         struct basic_binary_ostream {           
-
             template <typename _Writter, typename _UWritter = 
             typename std::remove_reference<_Writter>::type>
-            basic_binary_ostream (_Writter &&writter_, std::uint32_t flags_ = 0u)
-            :   writter_ (wrapper<_UWritter>::get (
-                    std::forward<_Writter>(writter_))),
-                flags_ (flags_),
+            basic_binary_ostream (_Writter &&writter_)
+            :   writter_ (make_writter (
+                    std::forward<_Writter> (writter_))),
                 bad_bit_ (false)
             {}
 
             inline basic_binary_ostream &write (void const *data_, std::size_t size_) {
-                auto written_ = writter_ (data_, size_);
+                auto written_ = reinterpret_cast<buffer_writter_base &>(writter_) (data_, size_);
                 bad_bit_ = (written_ != size_);
                 return *this;
             }
@@ -68,93 +76,33 @@ namespace ax{
                 return *this;
             }
 
-
         private:           
-            typedef std::size_t writter_format_t (void const *data_, std::size_t size_);
+            typedef std::pair<void *, void *> _Vptr;
 
-            template <typename _Vtype>
-            struct wrapper {
-                template <typename _Utype>
-                inline static std::function<writter_format_t> get (_Utype &&call_){                    
-                    return [&call_] (void const *data_, std::size_t size_) {
-                        return call_ (data_, size_);
-                    };
-                }
-            };
+            template <typename _Vtype, typename _Utype = 
+                typename std::remove_reference<_Vtype>::type>
+            static inline auto make_writter (_Vtype &&writter_) {
+                auto vptr_ = _Vptr {nullptr, nullptr};
+                new (&vptr_) buffer_writter<_Utype> (
+                    std::forward<_Vtype> (writter_));
+                return vptr_;
+            }
 
-            template <typename _Ctype>
-            struct wrapper<std::basic_string<_Ctype>> {
-                template <typename _Utype>
-                inline static std::function<writter_format_t> get (_Utype &&string_){
-                    return [&string_] (void const *pdata_, std::size_t size_) {
-                        auto wlen_ = size_/sizeof (_Ctype);
-                        auto rlen_ = size_%sizeof (_Ctype);
-                        auto data_ = reinterpret_cast<_Ctype const *>(pdata_);
-                        string_.append (data_, wlen_);
-                        if (rlen_ > 0) {
-                            auto temp_ = _Ctype ();
-                            std::memcpy (&temp_, &data_ [wlen_], rlen_);
-                            string_.append (&temp_, 1);
-                        }
-                        return size_;
-                    };
-                }
-            };
-
-            template <typename _Vtype>
-            struct wrapper<std::vector<_Vtype>> {
-                template <typename _Utype>
-                inline static std::function<writter_format_t> get (_Utype &&vector_){
-                    return [&vector_] (void const *pdata_, std::size_t size_) {
-                        auto wlen_ = size_/sizeof (_Vtype);
-                        auto rlen_ = size_%sizeof (_Vtype);
-                        auto data_ = reinterpret_cast<_Vtype const *>(pdata_);                            
-                        vector_.insert (vector_.end (), data_, data_+wlen_);
-                        if (rlen_ > 0) {
-                            auto temp_ = _Vtype ();
-                            std::memcpy (&temp_, &data_ [wlen_], rlen_);
-                            vector_.emplace_back (temp_);
-                        }
-                        return size_;
-                    };
-                }
-            };
-
-            template <typename _Vtype>
-            struct wrapper<std::basic_ofstream<_Vtype>> {
-                template <typename _Utype>
-                inline static std::function<writter_format_t> get (_Utype &&file_){
-                    return [&file_] (void const *pdata_, std::size_t size_) {
-                        auto wlen_ = size_/sizeof (_Vtype);
-                        auto rlen_ = size_%sizeof (_Vtype);
-                        auto data_ = reinterpret_cast<_Vtype const *>(pdata_);                            
-                        file_.write (data_, wlen_);
-                        if (rlen_ > 0) {
-                            auto temp_ = _Vtype ();                                
-                            file_.write (&temp_, 1);
-                        }
-                        return size_;
-                    };
-                }
-            };
-
-        ///////////////////////////////////////////////////
         private:
-            std::function<writter_format_t> writter_;
-            std::uint32_t flags_;
-            bool bad_bit_;
+            _Vptr writter_;
+            bool bad_bit_;            
         };
 
         namespace hbo {
             typedef basic_binary_ostream<hbo::serialize> binary_ostream;
         }
 
+        namespace nbo {
+            typedef basic_binary_ostream<nbo::serialize> binary_ostream;
+        }
+
         using hbo::binary_ostream;
 
-        //namespace nbo {
-        //    typedef basic_binary_ostream<network_byte_order> binary_ostream;
-        //}
-        
     }
 }
 

@@ -5,6 +5,19 @@
 #include <array>
 #include <string>
 
+/*
+ *  Simple little class for calculating SHA-1 hashes
+ *  usage:
+ *       auto hasher = ax::util::sha1 ();
+ *       hasher (data_pointer, size);
+ *       hasher (data_pointer, size);
+ *       hasher (data_pointer, size);
+ *       ...
+ *       auto hash = hasher.get ();
+ *
+ */
+
+
 namespace ax {
     namespace util {
         struct sha1 {

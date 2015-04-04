@@ -132,6 +132,8 @@
     <ClCompile Include="..\..\..\test\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\source\ax_binary_nbo_serialize.hpp" />
+    <ClInclude Include="..\..\..\source\ax_buffer_writter.hpp" />
     <ClInclude Include="..\..\..\source\ax_byte_swap.hpp" />
     <ClInclude Include="..\..\..\source\ax_binary_hbo_serialize.hpp" />
     <ClInclude Include="..\..\..\source\ax_binary_ostream.hpp" />
