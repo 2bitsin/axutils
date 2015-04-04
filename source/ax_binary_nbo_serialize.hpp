@@ -16,14 +16,17 @@ namespace ax {
                 template <typename _Iter, typename _Stream>
                 inline static auto &&_write (_Stream &&os_, _Iter begin_, _Iter end_) {
                     auto len_ = std::distance (begin_, end_);
-                    auto tmp_ = std::make_unique<_Vtype []> (len_);
-                    std::transform (begin_, end_, tmp_.get (),
-                        &host_to_network_byte_order<const _Vtype &>);                    
-                    return std::forward<_Stream> (os_) (
-                        tmp_.get (), sizeof (_Vtype) * len_);
+                    if (sizeof (_Vtype) > 1) {                        
+                        auto tmp_ = std::make_unique<_Vtype []> (len_);
+                        std::transform (begin_, end_, tmp_.get (),
+                            &host_to_network_byte_order<const _Vtype &>);                    
+                        return std::forward<_Stream> (os_) (
+                            tmp_.get (), sizeof (_Vtype) * len_);
+                    }
+                    return  std::forward<_Stream> (os_) (
+                        begin_, sizeof (_Vtype) * len_);
                 }
             };
-
 
             template <typename _Value>
             struct serialize: 
@@ -90,7 +93,8 @@ namespace ax {
                 inline static auto &&write (_Stream &&os_, 
                     const std::basic_string<_Value> &val_) 
                 {
-                    return _write (std::forward<_Stream> (os_), std::begin (val_), std::end (val_));
+                    return _write (std::forward<_Stream> (os_), 
+                        val_.c_str (), val_.c_str () + val_.size ());
                 }
             };
 
@@ -107,7 +111,8 @@ namespace ax {
                 inline static auto &&write (_Stream &&os_, 
                     const std::array<_Value, _Count> &val_) 
                 {
-                    return _write (std::forward<_Stream> (os_), std::begin (val_), std::end (val_));
+                    return _write (std::forward<_Stream> (os_), 
+                        std::begin (val_), std::end (val_));
                 }
             };
                 
@@ -124,7 +129,8 @@ namespace ax {
                 inline static auto &&write (_Stream &&os_, 
                     const std::vector<_Value> &val_) 
                 {
-                    return _write (std::forward<_Stream> (os_), std::begin (val_), std::end (val_));
+                    return _write (std::forward<_Stream> (os_), 
+                        val_.data (), val_.data () + val_.size ());
                 }
             };
                 
@@ -141,7 +147,8 @@ namespace ax {
                 inline static auto &&write (_Stream &&os_, 
                     const std::initializer_list<_Value> &val_) 
                 {
-                    return _write (std::forward<_Stream> (os_), std::begin (val_), std::end (val_));
+                    return _write (std::forward<_Stream> (os_), 
+                        std::begin (val_), std::end (val_));
                 }
             };
                 

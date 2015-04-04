@@ -4,6 +4,8 @@
 #include <cstdio>
 #include <vector>
 #include <iostream>
+#include <numeric>
+
 int main () {    
     static const char messag_ [] = {
         'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 
@@ -44,11 +46,15 @@ int main () {
     auto hbstrm_ = ax::util::hbo::binary_ostream (hbfile_);
     auto nbstrm_ = ax::util::nbo::binary_ostream (nbfile_);
 
-    std::uint64_t ui = 0;
+    std::size_t ui;
     std::cin >> ui;
 
-    hbstrm_ << ui;
-    nbstrm_ << ui;
+    auto vect_ = std::vector<std::uint32_t> (ui);
+    std::iota (std::begin (vect_), std::end (vect_), 10000);
+
+
+    hbstrm_ << vect_;
+    nbstrm_ << vect_;
 
 
     //std::cin.get ();
