@@ -33,8 +33,7 @@ namespace ax{
 
         template <template <typename> class _Serialize = hbo::serialize>
         struct basic_binary_ostream {           
-            template <typename _Writter, typename _UWritter = 
-            typename std::remove_reference<_Writter>::type>
+            template <typename _Writter>
             basic_binary_ostream (_Writter &&writter_)
             :   writter_ (make_writter (
                     std::forward<_Writter> (writter_))),
