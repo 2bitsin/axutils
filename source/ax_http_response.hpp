@@ -9,17 +9,21 @@ namespace ax {
     namespace http {
         template <typename _String = std::wstring>
             struct basic_response {
+                struct output_fascet_type {};
+                static const output_fascet_type output_fascet_flag;
+
                 typedef _String string;
                 typedef typename _String::value_type char_type;
+
+                template <typename _Output>
+                basic_response (output_fascet_type const &, _Output &&);
+                ~basic_response ();
 
                 string const &header (string const &key) const;
                 template <typename _Value>
                 basic_response &header (string const &key, _Value const &value);
                 string const &header () const;
                 basic_response &header (string const &);
-
-                template <typename OutputFascet>
-                basic_response (OutputFascet &&);
 
                 template <typename Type>
                 basic_response &send (Type const &what);
@@ -40,6 +44,10 @@ namespace ax {
                 std::unordered_map<string, string> headers_;
             };
 
+    template<typename _String>
+    const typename basic_response<_String>::output_fascet_type
+        basic_response<_String>::output_fascet_flag = 
+            typename basic_response<_String>::output_fascet_type {};
 
             namespace basic_response_detail{
                 template <typename _String, typename _Value>
@@ -59,17 +67,19 @@ namespace ax {
 
             template <typename _String>
             template <typename _Value>
-            basic_response<_String> &basic_response<_String>::header (string const &key, _Value const &value) 
+            basic_response<_String> &
+                basic_response<_String>::header (string const &key, _Value const &value) 
             {
                 headers_ [key] = basic_response_detail::make_string<_String> (value);
                 return *this;
             }
 
             template <typename _String>
-        template <typename OutputFascet>
-            inline basic_response<_String>::basic_response (OutputFascet &&out_):
-                output_ (out_)                
-            {
+            template <typename _Output>            
+            inline basic_response<_String>::basic_response (
+                output_fascet_type const &, _Output &&out_)
+            :   output_ (std::forward<_Output> (out_))
+            {                
                 static const char ok_ [] = "HTTP/1.1 200 Ok";
                 static const char ctk_ [] = "Content-Type";
                 static const char ctv_ [] = "text/html";

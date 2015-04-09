@@ -2,10 +2,16 @@
 namespace ax{
     namespace http{
         template<typename _String>
-            typename basic_response<_String>::string const &
-                basic_response<_String>::header (string const &key) const {
-                return headers_.at (key);
-            }
+        basic_response<_String>::~basic_response () {
+            if (!headers_sent_) 
+                send_headers ();
+        }
+
+        template<typename _String>
+        typename basic_response<_String>::string const &
+            basic_response<_String>::header (string const &key) const {
+            return headers_.at (key);
+        }
 
         //template <typename _String>
         //    basic_response<_String> &

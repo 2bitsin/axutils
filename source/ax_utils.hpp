@@ -54,11 +54,9 @@ namespace ax {
         auto split (_String const &str_, _String const &needle_, VectorType &vec_) {
             auto i = vec_.size ();
             auto o = std::size_t ();
-            do {
-                
+            do {                
                 auto lo = str_.find (needle_, o);
-                if (lo != str_.npos) {
-                    //std::cout << lo << " " << o << "\n";
+                if (lo != str_.npos) {                
                     vec_.emplace_back (std::begin (str_)+o, std::begin (str_)+lo);
                     o = lo + needle_.size ();
                     continue;
@@ -82,7 +80,7 @@ namespace ax {
             }
 
             template <typename _String, typename _Arg0, typename... _Args>
-            auto &&__tuple_split ( std::tuple<_Arg0, _Args...> &tuple_, 
+            auto &&__tuple_split (std::tuple<_Arg0, _Args...> &tuple_, 
                 const _String &string_, const _String &delim_) 
             {
                 auto depos_ = string_.find (delim_);
@@ -99,7 +97,9 @@ namespace ax {
         }
 
         template <typename _Tuple, typename _String>
-            _Tuple split_tuple (_String const &string_, _String const &delim_ = detail::__cast_char_array<_String> (" ")) {
+            _Tuple split_tuple (_String const &string_, _String const &delim_
+                = detail::__cast_char_array<_String> (" ")) 
+            {
                 _Tuple tmp_;                
                 return detail::__tuple_split (tmp_, string_, delim_);
             }
@@ -108,15 +108,15 @@ namespace ax {
         template <typename _String>
         auto trim (_String const &str_) {
             static const auto _is_space = [] (auto c) { 
-                return 
-                    c == '\t' || 
-                    c == '\n' || 
-                    c == '\r' || 
-                    c == ' '; 
+                static const char space_ [] = "\t\n\f\r ";
+                return std::binary_search (std::begin (space_), std::end (space_), c);
             };
             return _String (
-                std::find_if_not (std::begin (str_), std::end (str_), _is_space),
-                std::find_if_not (std::rbegin (str_), std::rend (str_), _is_space).base ());
+                std::find_if_not (std::begin (str_), 
+                    std::end (str_), _is_space),
+                std::find_if_not (std::rbegin (str_), 
+                    std::rend (str_), _is_space).base ()
+            );
                 
         }
     }

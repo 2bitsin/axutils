@@ -19,19 +19,36 @@ bool ax::http::middleware_static::operator()(request const &req_, response &resp
     rpath_.append (req_.path ().substr (mount_.size ()));
     if (is_directory (rpath_))
         rpath_.append ("index.html");
-    auto rfile_ = std::ifstream  (rpath_, std::ios::binary);    
+
+
+
+    auto rfile_ = ([] (auto const &rpath_, auto &resp_) {
+        auto gzpath_ = path (rpath_.string () + ".gz");
+        if (exists (gzpath_)) {        
+            resp_.header ("Content-Encoding", "gzip");
+            return std::ifstream (gzpath_, std::ios::binary);
+        }
+        return std::ifstream (rpath_, std::ios::binary);
+    }) (rpath_, resp_);
+    
     if (!rfile_) {
         return false;
     }
-    auto mimet_ = mime (rpath_.extension ().string ());
-    resp_.header ("Content-Type", mimet_);
-    resp_.header ("Content-Length", std::to_string (file_size (rpath_)));
+
+    rfile_.seekg (0, std::ios::end);
+    auto mtype_ = mime (rpath_.extension ().string ());
+    auto fsize_ = rfile_.tellg ();
+    rfile_.seekg (0, std::ios::beg);
+
+    resp_.header ("Content-Type", mtype_);
+    resp_.header ("Content-Length", fsize_);
     resp_.header ("Content-Disposition", "inline; filename=\""+rpath_.filename ().string ()+"\"");
     resp_.header ("Access-Control-Allow-Origin", "*");
-    while (rfile_) {
-        char buffer_ [2048];
-        rfile_.read (buffer_, sizeof (buffer_));
-        resp_.send_raw (buffer_, rfile_.gcount ());
+    auto buffsz_ = 1024*1024;
+    auto buffer_ = std::make_unique<char []>(buffsz_);
+    while (rfile_) {        
+        rfile_.read (buffer_.get (), buffsz_);
+        resp_.send_raw (buffer_.get (), rfile_.gcount ());
     }
     #if defined (__AX_DEBUG__)
     std::cout << "STATIC: " + std::string (req_) + "\n";

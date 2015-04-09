@@ -48,11 +48,17 @@ namespace ax {
                 request_.header ("User-Agent") + "\" [" + 
                 client_.address ().host () + "]");*/
         
-            auto response_ = response (std::bind (
-                &socket_type::send, &client_, 
-                std::placeholders::_1, 
-                std::placeholders::_2, 
-                false));
+            auto response_ = response (
+                response::output_fascet_flag, 
+                std::bind (
+                    &socket_type::send, &client_, 
+                    std::placeholders::_1, 
+                    std::placeholders::_2, 
+                    false));
+            //auto response_ = response (response::output_fascet_flag, 
+            //    [&client_] (auto &&buff_, auto &&size_) {
+            //        return client_->send (buff_, size_);
+            //    });
             try {
                 for (auto &&mw_: middleware_) {
                     if (!mw_ (request_, response_))
