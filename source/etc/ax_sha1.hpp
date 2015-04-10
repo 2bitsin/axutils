@@ -29,7 +29,7 @@ namespace ax {
             value_type const &done ();
         private:
 
-            enum { BUFFER_SIZE = 64};
+            enum { BUFFER_SIZE = 64 };
 
             void _digest ();
             void _done ();

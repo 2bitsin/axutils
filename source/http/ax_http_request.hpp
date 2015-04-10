@@ -5,8 +5,8 @@
 #include <memory>
 #include <cstdint>
 
-#include "ax_socket_stream_adapter.hpp"
-#include "ax_utils.hpp"
+#include "../net/ax_socket_stream_adapter.hpp"
+#include "../etc/ax_utils.hpp"
 
 namespace ax {
     namespace http {
