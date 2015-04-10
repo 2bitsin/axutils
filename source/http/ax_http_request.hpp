@@ -12,24 +12,22 @@ namespace ax {
     namespace http {
         struct request {
             
-            template <typename _Sock, typename _USock = 
-                typename std::remove_reference<_Sock>::type>
-            request (_Sock &&sock_):
-                stream_ (std::make_unique<ax::util::socket_stream_adapter<char, _USock>> (
-                    std::forward<_Sock> (sock_)))
+            request (ax::util::socket_stream_adapter_base<char> &pstream_)
+            :   stream_ (pstream_)
             {
                 std::string line_;
-                auto &input_ = *stream_;
+                auto &input_ = stream_;
                 if (!ax::util::getline (input_, line_) || line_.empty ()) 
                     throw std::runtime_error ("Malformed request");
-                std::tie (method_, path_, proto_) =
+                std::tie (method_, public_, proto_) =
                     ax::util::split_tuple<std::tuple<std::string, std::string, std::string>> (line_);
-                if (method_.empty () || path_.empty () || proto_.empty ())
+                if (method_.empty () || public_.empty () || proto_.empty ())
                     throw std::runtime_error ("Malformed request");
-                std::tie (path_, query_string_) = 
-                    ax::util::split_tuple<std::tuple<std::string, std::string>> (path_, std::string ("?"));
-                std::vector<std::string> temp_;
-                ax::util::split (query_string_, std::string ("&"), temp_);
+                std::tie (public_, query_string_) = 
+                    ax::util::split_tuple<std::tuple<std::string, std::string>> (public_, std::string ("?"));
+                
+                auto temp_ = ax::util::split<std::vector> (
+                    query_string_, std::string ("&"));
                 for (auto &&qk_: temp_) {
                     std::string key_, value_;
                     std::tie (key_, value_) = ax::util::split_tuple<std::tuple<
@@ -44,7 +42,7 @@ namespace ax {
                 }
             }
 
-            inline auto const &path     () const { return path_; };
+            inline auto const &path     () const { return public_; };
             inline auto const &method   () const { return method_; };
             inline auto const &proto    () const { return proto_; };
             inline auto const &header   () const { return headers_ ; }
@@ -57,16 +55,15 @@ namespace ax {
             }
 
             auto &&stream () {
-                return *stream_;
+                return stream_;
             }
             auto &&stream () const {
-                return *stream_;
+                return stream_;
             }
 
         private:
-            std::string method_, path_, proto_, query_string_;
-            
-            std::unique_ptr<util::socket_stream_adapter_base<char>> stream_;
+            std::string method_, public_, proto_, query_string_;            
+            util::socket_stream_adapter_base<char> &stream_;
             std::unordered_map<std::string, std::string> headers_;
             std::unordered_map<std::string, std::string> query_;            
         };

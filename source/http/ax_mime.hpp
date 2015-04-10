@@ -4,7 +4,7 @@
 #include <string>
 
 namespace ax {
-    namespace util {
+    namespace http {
         struct mime_type {
             static mime_type const &get (std::string const &ext);
             operator std::string const & () const;

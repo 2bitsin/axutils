@@ -7,13 +7,13 @@
 
 namespace ax {
     namespace http {
-        struct middleware_static {
+        struct static_server {
             typedef std::tr2::sys::path path_type;
-            middleware_static (path_type const &path_, std::string const &mount_ = "/");
+            static_server (path_type const &public_, std::string const &mount_ = "/");
             bool operator () (request const &req_, response &resp_);
             static std::string mime (std::string const &ext_);
         private:
-            path_type path_;
+            path_type public_;
             std::string mount_;
         };
     }

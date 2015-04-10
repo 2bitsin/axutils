@@ -1,10 +1,10 @@
 #include "ax_mime.hpp"
 #include <unordered_map>
 
-ax::util::mime_type const &
-    ax::util::mime_type::get (std::string const & ext) 
+ax::http::mime_type const &
+    ax::http::mime_type::get (std::string const & ext) 
 {
-    static const auto types_ = std::unordered_map<std::string, ax::util::mime_type> {
+    static const auto types_ = std::unordered_map<std::string, ax::http::mime_type> {
         {"3dm", "x-world/x-3dmf"},
         {"3dmf", "x-world/x-3dmf"},
         {"a", "application/octet-stream"},
@@ -660,13 +660,13 @@ ax::util::mime_type const &
     return i->second;
 }
 
-ax::util::mime_type::operator std::string const&() const {
+ax::http::mime_type::operator std::string const&() const {
     return string_;
 }
-ax::util::mime_type::operator char const * () const {
+ax::http::mime_type::operator char const * () const {
     return string_.c_str ();
 }
 
-std::string const & ax::util::mime_type::string () const {
+std::string const & ax::http::mime_type::string () const {
     return string_;
 }

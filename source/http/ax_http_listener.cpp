@@ -42,23 +42,11 @@ namespace ax {
     template <typename _Stream>
         inline listener<_Stream> &
             listener<_Stream>::client (socket_type &client_) 
-        {                       
-            auto request_ = request (client_);
-            /*log (request_.method () + " \"" + request_.path () + "\" \"" + 
-                request_.header ("User-Agent") + "\" [" + 
-                client_.address ().host () + "]");*/
-        
-            auto response_ = response (
-                response::output_fascet_flag, 
-                std::bind (
-                    &socket_type::send, &client_, 
-                    std::placeholders::_1, 
-                    std::placeholders::_2, 
-                    false));
-            //auto response_ = response (response::output_fascet_flag, 
-            //    [&client_] (auto &&buff_, auto &&size_) {
-            //        return client_->send (buff_, size_);
-            //    });
+        {                      
+            auto stream_   = util::socket_stream_adapter<char, socket_type> (client_);
+            auto request_  = request  (stream_);        
+            auto response_ = response (stream_);
+
             try {
                 for (auto &&mw_: middleware_) {
                     if (!mw_ (request_, response_))
@@ -68,21 +56,18 @@ namespace ax {
 
                 response_.header ("HTTP/1.1 404 Page not found");
                 response_.header ("Content-Type", "text/html");            
-                response_.header ("Content-Type", "text/html");            
-                response_.header ("Content-Type", "text/html");            
-                response_.send (make_string_response (std::string (
+                response_.send (std::string (
                     "<html><head><title>404 - Page not found</title></head>"
-                    "<body><h1>404 - Page not found</h1></body></html>"
-                )));
+                    "<body><h1>404 - Page not found</h1></body></html>"));
                 return *this;
             }
             catch (std::exception const &e){ 
                 response_.header ("HTTP/1.1 500 Internal server error");
                 response_.header ("Content-Type", "text/html");            
-                response_.send (make_string_response (std::string (
+                response_.send (std::string (
                     "<html><head><title>500 - Internal server error</title></head>"
-                    "<body><h1>500 - Internal server errror</h1><p>"+std::string (e.what ())+"</p></body></html>"
-                )));                
+                    "<body><h1>500 - Internal server errror</h1><p>"+
+                    std::string (e.what ())+"</p></body></html>"));
             }
             return *this;
         }
