@@ -4,6 +4,7 @@
 #include <string>
 #include <functional>
 #include <unordered_map>
+#include "../etc/ax_utils.hpp"
 
 namespace ax {
     namespace http {
@@ -80,12 +81,9 @@ namespace ax {
                 output_fascet_type const &, _Output &&out_)
             :   output_ (std::forward<_Output> (out_))
             {                
-                static const char ok_ [] = "HTTP/1.1 200 Ok";
-                static const char ctk_ [] = "Content-Type";
-                static const char ctv_ [] = "text/html";
-                header (string (std::begin (ok_), std::end (ok_)-1));
-                header (string (std::begin (ctk_), std::end (ctk_)-1),
-                    string (std::begin (ctv_), std::end (ctv_)-1));
+                header (::ax::util::detail::__cast_char_array<_String> ("HTTP/1.1 200 Ok"));
+                header (::ax::util::detail::__cast_char_array<_String> ("Content-Type"),
+                    ::ax::util::detail::__cast_char_array<_String> ("text/html"));
             }
 
         template<typename _String>
