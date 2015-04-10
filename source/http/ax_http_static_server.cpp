@@ -23,18 +23,23 @@ bool ax::http::static_server::operator () (request const &req_, response &resp_)
     if (sys::is_directory (rpath_))
         rpath_.append ("index.html");
     rpath_ = sys::canonical (rpath_);
-    if (sys::canonical (rpath_.parent_path ()).string ()
-        .find (public_.string ()) != std::string::npos) 
-    {
-        if (!exists (rpath_))
-            return false;
-        resp_.send (rpath_);
-        return true;
+    auto dirstr_ = sys::canonical (rpath_.parent_path ()).string ();
+    if (dirstr_.find (public_.string ()) != dirstr_.npos) {
+        auto gzpath_ = sys::path (rpath_.string () + ".gz");
+        if (sys::exists (gzpath_)) {
+            resp_.header ("Content-Encoding", "gzip");
+            resp_.header ("Content-Type", mime_type::get (rpath_.extension ().string ()).string ());
+            resp_.header ("Content-Disposition", "inline; filename=\""+rpath_.filename ().string ()+"\"");
+            resp_.send (gzpath_);
+            return true;
+        }
+        if (sys::exists (rpath_)) {
+            resp_.send (rpath_);
+            return true;
+        }
+        return false;
     }
     return false;
 }
 
-std::string ax::http::static_server::mime (std::string const &ext_) {
-    return ax::http::mime_type::get (ext_);
-}
 
