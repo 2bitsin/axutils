@@ -48,11 +48,9 @@ namespace ax {
             auto request_  = request  (stream_);        
             auto response_ = response (stream_);
             try {
-                for (auto &&mw_: middleware_) {
-                    if (mw_ (request_, response_) != 200)
-                        continue;
-                    return *this;
-                }
+                for (auto &&mw_: middleware_)
+                    if (mw_ (request_, response_))
+                        return *this;                
                 assets::send_404 (request_, response_);
                 return *this;
             }
