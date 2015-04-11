@@ -162,6 +162,7 @@ ax::http::mime_type const &
         {"gzip", "application/x-gzip"},
         {"gzip", "multipart/x-gzip"},
         {"h", "text/plain"},
+        {"hpp", "text/plain"},
         {"h", "text/x-h"},
         {"hdf", "application/x-hdf"},
         {"help", "application/x-helpfile"},

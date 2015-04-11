@@ -19,8 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{E8AE1275-00DA-484C-A0D7-7E13CBB79B5F}</ProjectGuid>
-    <RootNamespace>AxUtils</RootNamespace>
+    <ProjectGuid>{FC1701F5-07C5-451A-AA8C-4875C7805130}</ProjectGuid>
+    <RootNamespace>http_server</RootNamespace>
+    <ProjectName>HttpServer</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -67,12 +68,24 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(SolutionDir)..\source;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(SolutionDir)..\source;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>$(SolutionDir)..\source;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(SolutionDir)..\source;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -83,6 +96,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -95,11 +109,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -114,12 +126,9 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <OmitFramePointers>false</OmitFramePointers>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
-      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -128,33 +137,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\source\ax_address.cpp" />
-    <ClCompile Include="..\..\..\source\ax_http_listener.cpp" />
-    <ClCompile Include="..\..\..\source\ax_http_middleware_static.cpp" />
-    <ClCompile Include="..\..\..\source\ax_http_response.cpp" />
-    <ClCompile Include="..\..\..\source\ax_mime.cpp" />
-    <ClCompile Include="..\..\..\source\ax_sha1.cpp" />
-    <ClCompile Include="..\..\..\source\ax_tcp_socket.cpp" />
-    <ClCompile Include="..\..\..\source\ax_ws2_32.cpp" />
-    <ClCompile Include="..\..\..\test\Main.cpp" />
+    <ClCompile Include="..\..\test\http_test\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\source\ax_address.hpp" />
-    <ClInclude Include="..\..\..\source\ax_binary_nbo_serialize.hpp" />
-    <ClInclude Include="..\..\..\source\ax_buffer_writter.hpp" />
-    <ClInclude Include="..\..\..\source\ax_byte_swap.hpp" />
-    <ClInclude Include="..\..\..\source\ax_binary_hbo_serialize.hpp" />
-    <ClInclude Include="..\..\..\source\ax_binary_ostream.hpp" />
-    <ClInclude Include="..\..\..\source\ax_http_listener.hpp" />
-    <ClInclude Include="..\..\..\source\ax_http_middleware_static.hpp" />
-    <ClInclude Include="..\..\..\source\ax_http_request.hpp" />
-    <ClInclude Include="..\..\..\source\ax_http_response.hpp" />
-    <ClInclude Include="..\..\..\source\ax_http_string_response.hpp" />
-    <ClInclude Include="..\..\..\source\ax_mime.hpp" />
-    <ClInclude Include="..\..\..\source\ax_sha1.hpp" />
-    <ClInclude Include="..\..\..\source\ax_socket_stream_adapter.hpp" />
-    <ClInclude Include="..\..\..\source\ax_tcp_socket.hpp" />
-    <ClInclude Include="..\..\..\source\ax_utils.hpp" />
+    <ProjectReference Include="..\AxUtils.vcxproj">
+      <Project>{15f02e9f-96b4-44c7-8102-f4b3c6679789}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

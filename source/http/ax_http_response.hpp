@@ -41,7 +41,7 @@ namespace ax {
                 return *this;
             }
 
-            inline auto &&stream () {
+            auto &&stream () {
                 !headers_sent_ && _send_headers ();
                 return stream_;
             }
@@ -92,21 +92,11 @@ namespace ax {
             }
 
             //template <typename _Ctype>
-            inline response &send (std::tr2::sys::path const &public_) {
-                std::ifstream ifs_ (public_, std::ios::binary);
-                _default_header ("Content-Length", std::tr2::sys::file_size (public_));
-                _default_header ("Content-Disposition", 
-                    "inline; filename=\""+public_.filename ().string ()+"\"");
-                _default_header ("Content-Type",
-                    mime_type::get (public_.extension ().string ()).string ());
-                return send (ifs_);
-            }
+            response &send (std::tr2::sys::path const &public_);
 
         private:
-            bool _has_header (std::string const &key_) {
-                auto i = headers_.find (key_);
-                return i != headers_.end ();
-            }
+            bool _has_header (std::string const &key_);
+            bool _send_headers ();
 
             template <typename _Value>
             response &_default_header (std::string const &key_, _Value &&val_) {
@@ -115,29 +105,17 @@ namespace ax {
                 return *this;
             }
 
-            template <typename _Ctype>
-            response &_send (_Ctype const *data_, std::size_t size_) {
+            template <typename _Ctype, typename _Size>
+            response &_send (_Ctype const *data_, _Size size_) {
                 auto length_ = size_ * sizeof (_Ctype);
                 if (!headers_sent_) {
                     _default_header ("Content-Length", length_);
                     _default_header ("Content-Type", mime_type::get ("bin").string ());
                 }
-                if (stream ().write (data_, size_) != size_) {
+                if (stream ().write (data_, std::intptr_t (size_)) != std::intptr_t (size_)) {
                     throw std::runtime_error ("Unable to send response");
                 }
                 return *this;
-            }
-
-            bool _send_headers () {
-                if (headers_sent_)
-                    return false;
-                stream_.put (http_head_ + "\r\n");
-                for (auto &&header_ : headers_) {                    
-                    stream_.put (header_.first + ": " + 
-                        header_.second + "\r\n");
-                }
-                stream_.put ("\r\n");
-                return headers_sent_ = true;
             }
 
         private:

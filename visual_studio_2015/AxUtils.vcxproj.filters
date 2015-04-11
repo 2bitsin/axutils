@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\http">
+      <UniqueIdentifier>{6580daad-1ca3-434f-af37-9fc0fc6839dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\etc">
+      <UniqueIdentifier>{7ed7adda-2683-4b59-b6e4-33eaff77ffc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\net">
+      <UniqueIdentifier>{36361ce8-df81-4053-b196-d52b37bb428a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\source\http\ax_http_assets.hpp">
+      <Filter>Source Files\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\http\ax_http_listener.hpp">
+      <Filter>Source Files\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\http\ax_http_request.hpp">
+      <Filter>Source Files\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\http\ax_http_response.hpp">
+      <Filter>Source Files\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\http\ax_http_static_server.hpp">
+      <Filter>Source Files\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\http\ax_mime.hpp">
+      <Filter>Source Files\http</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\etc\ax_binary_hbo_serialize.hpp">
+      <Filter>Source Files\etc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\etc\ax_binary_nbo_serialize.hpp">
+      <Filter>Source Files\etc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\etc\ax_binary_ostream.hpp">
+      <Filter>Source Files\etc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\etc\ax_byte_swap.hpp">
+      <Filter>Source Files\etc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\etc\ax_buffer_writter.hpp">
+      <Filter>Source Files\etc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\etc\ax_from_string.hpp">
+      <Filter>Source Files\etc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\etc\ax_getline.hpp">
+      <Filter>Source Files\etc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\etc\ax_memory.hpp">
+      <Filter>Source Files\etc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\etc\ax_sha1.hpp">
+      <Filter>Source Files\etc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\etc\ax_split.hpp">
+      <Filter>Source Files\etc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\etc\ax_to_string.hpp">
+      <Filter>Source Files\etc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\etc\ax_trim.hpp">
+      <Filter>Source Files\etc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\etc\ax_utils.hpp">
+      <Filter>Source Files\etc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\net\ax_address.hpp">
+      <Filter>Source Files\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\net\ax_socket_stream_adapter.hpp">
+      <Filter>Source Files\net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\net\ax_tcp_socket.hpp">
+      <Filter>Source Files\net</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\source\http\ax_http_listener.cpp">
+      <Filter>Source Files\http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\http\ax_http_static_server.cpp">
+      <Filter>Source Files\http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\http\ax_mime.cpp">
+      <Filter>Source Files\http</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\etc\ax_sha1.cpp">
+      <Filter>Source Files\etc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\net\ax_address.cpp">
+      <Filter>Source Files\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\net\ax_tcp_socket.cpp">
+      <Filter>Source Files\net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\source\http\ax_http_response.cpp">
+      <Filter>Source Files\http</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
