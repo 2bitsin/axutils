@@ -28,7 +28,7 @@ namespace ax {
             template <typename _Middleware>
                 listener &attach (_Middleware &&e);            
         private:                                
-            std::vector<std::function<bool (request &, response &)>> 
+            std::vector<std::function<int (request &, response &)>> 
                 middleware_;
             socket_type sock_;
             std::atomic<int> active_;

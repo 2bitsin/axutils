@@ -49,7 +49,7 @@ namespace ax {
 
             try {
                 for (auto &&mw_: middleware_) {
-                    if (!mw_ (request_, response_))
+                    if (mw_ (request_, response_) != 200)
                         continue;
                     return *this;
                 }
