@@ -5,7 +5,6 @@
 #include "../etc/ax_utils.hpp"
 #include "ax_http_request.hpp"
 #include "ax_http_response.hpp"
-#include "ax_http_string_response.hpp"
 #include <iostream>
 #include <algorithm>
 #include <numeric>
