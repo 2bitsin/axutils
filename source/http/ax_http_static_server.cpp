@@ -1,4 +1,5 @@
 #include "ax_http_static_server.hpp"
+#include "ax_http_assets.hpp"
 #include "ax_mime.hpp"
 #include <fstream>
 
@@ -23,8 +24,10 @@ bool ax::http::static_server::operator () (request const &req_, response &resp_)
         return false;
     auto rpath_ = public_;
     rpath_.append (req_.path ().substr (mount_.size ()));
-    if (sys::is_directory (rpath_))
+    auto dpath_ = rpath_;
+    if (sys::is_directory (rpath_)) {
         rpath_.append ("index.html");
+    }
     rpath_ = sys::canonical (rpath_);
     auto dirstr_ = sys::canonical (rpath_.parent_path ()).string ();
     if (dirstr_.find (public_.string ()) != dirstr_.npos) {
@@ -36,12 +39,13 @@ bool ax::http::static_server::operator () (request const &req_, response &resp_)
             resp_.send (gzpath_);
             return true;
         }
+
         if (sys::exists (rpath_)) {
             resp_.send (rpath_);
             return true;
         }
 
-        return directory_listing (rpath_, req_, resp_);
+        return directory_listing (dpath_, req_, resp_);
     }
     return false;
 }
@@ -50,38 +54,49 @@ bool ax::http::static_server::has_directory_index () const {
     return flags_ & directory_index;
 }
 
-bool ax::http::static_server::directory_listing (path_type const &path_, request const &req_, response & resp_) {    
-    auto rpath_ = path_.parent_path ();
-    if (sys::is_directory (rpath_) && 
-        has_directory_index ()) 
-    {
-        auto header_ = R"(
-            <link rel="stylesheet" type="text/css" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" />
-            <script type="application/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-            <script type="application/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-        )";
-        auto back_ = sys::path (req_.path ());
-        back_.append ("..");
-        resp_.header ("Content-Type", "text/html");
-        std::string index_ = "<html><head><title>"+req_.path ()+
-            "</title>"+header_+"</head><body><div class='container'><h1>"+
-            req_.path ()+"</h1><table class='table table-striped'>"+
-            "<tr><td style='width:30pt'><span class='glyphicon glyphicon-folder-close'>"
-            "</span></td><td><a href=\""+back_.string ()+"\">..</a></td></tr>";
-        for (auto i = sys::directory_iterator (rpath_); 
-            i != sys::directory_iterator (); ++i) 
-        {
-            bool is_dir_ =  sys::is_directory (i->path ());
-            auto name_ = i->path ().filename ().string ();
-            auto next_ = sys::path (req_.path ());
-            next_.append (name_);
-            index_.append ("<tr><td style='width:30pt'><span class='glyphicon glyphicon-"+
-                std::string (is_dir_ ? "folder-open" : "file")+
-                "'></span></td><td><a href=\""+next_.string ()+"\">"+
-                name_+"</a></td></tr>");
-        }
-        index_.append ("</table></div></body></html>");
-        resp_.send (index_);
+bool ax::http::static_server::directory_listing (path_type const &path_, request const &req_, response & resp_) {            
+    if (has_directory_index () && 
+        sys::exists (path_) && 
+        sys::is_directory (path_)) 
+    {     
+        struct dir_index_entry {
+
+            dir_index_entry (
+                std::string const &href_, 
+                std::string const &title_, 
+                bool directory_, 
+                bool up_directory_)
+            :   href_ (href_),
+                title_ (title_),
+                directory_ (directory_),
+                up_directory_ (up_directory_)
+            {}
+
+            auto const &title () const {return title_;}
+            auto const &href () const {return href_;}
+            auto const &directory () const {return directory_;}
+            auto const &up_directory () const {return up_directory_;}
+                
+        private:
+            std::string href_, title_;
+            bool directory_, up_directory_;
+        };
+               
+        auto entries_ = std::vector<dir_index_entry>  {
+            {sys::path (req_.path ()).append ("..").string (), "..", true, true}
+        };        
+        std::for_each (
+            sys::directory_iterator (path_),
+            sys::directory_iterator (), 
+            [&entries_, &req_] (auto &&dir_) {
+                bool is_dir_ =  sys::is_directory (dir_.path ());
+                auto name_ = dir_.path ().filename ();
+                auto next_ = sys::path (req_.path ()).append (name_);
+                entries_.emplace_back (next_.string (), name_.string (), is_dir_, false);        
+            });
+        assets::generate_directory_listing (
+            req_, resp_, std::begin (entries_), 
+            std::end (entries_));        
         return true;
     }
     return false;

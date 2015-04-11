@@ -1,5 +1,6 @@
 #include "../net/ax_tcp_socket.hpp"
 #include "ax_http_listener.hpp"
+#include "ax_http_assets.hpp"
 
 namespace ax {
     namespace http{
@@ -46,28 +47,17 @@ namespace ax {
             auto stream_   = util::socket_stream_adapter<char, socket_type> (client_);
             auto request_  = request  (stream_);        
             auto response_ = response (stream_);
-
             try {
                 for (auto &&mw_: middleware_) {
                     if (mw_ (request_, response_) != 200)
                         continue;
                     return *this;
                 }
-
-                response_.header ("HTTP/1.1 404 Page not found");
-                response_.header ("Content-Type", "text/html");            
-                response_.send (std::string (
-                    "<html><head><title>404 - Page not found</title></head>"
-                    "<body><h1>404 - Page not found</h1></body></html>"));
+                assets::send_404 (request_, response_);
                 return *this;
             }
             catch (std::exception const &e){ 
-                response_.header ("HTTP/1.1 500 Internal server error");
-                response_.header ("Content-Type", "text/html");            
-                response_.send (std::string (
-                    "<html><head><title>500 - Internal server error</title></head>"
-                    "<body><h1>500 - Internal server errror</h1><p>"+
-                    std::string (e.what ())+"</p></body></html>"));
+               assets::send_500 (request_, response_, e);
             }
             return *this;
         }
