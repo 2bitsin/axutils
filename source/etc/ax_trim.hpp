@@ -9,8 +9,7 @@ namespace ax{
         template <typename _String>
         auto trim (_String const &str_) {
             static const auto _is_space = [] (auto c) { 
-                static const char space_ [] = "\t\n\f\r ";
-                return std::binary_search (std::begin (space_), std::end (space_), c);
+                return c >= 8 && c <= 13 || c == 32;
             };
             return _String (
                 std::find_if_not (std::begin (str_), 

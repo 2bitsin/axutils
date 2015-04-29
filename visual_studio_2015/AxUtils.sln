@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AxUtils", "AxUtils.vcxproj"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HttpServer", "http_server\http_server.vcxproj", "{FC1701F5-07C5-451A-AA8C-4875C7805130}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tests", "other_tests\other_tests.vcxproj", "{1737DA96-D347-45B6-A212-A587C6C6894C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -31,6 +33,14 @@ Global
 		{FC1701F5-07C5-451A-AA8C-4875C7805130}.Release|x64.Build.0 = Release|x64
 		{FC1701F5-07C5-451A-AA8C-4875C7805130}.Release|x86.ActiveCfg = Release|Win32
 		{FC1701F5-07C5-451A-AA8C-4875C7805130}.Release|x86.Build.0 = Release|Win32
+		{1737DA96-D347-45B6-A212-A587C6C6894C}.Debug|x64.ActiveCfg = Debug|x64
+		{1737DA96-D347-45B6-A212-A587C6C6894C}.Debug|x64.Build.0 = Debug|x64
+		{1737DA96-D347-45B6-A212-A587C6C6894C}.Debug|x86.ActiveCfg = Debug|Win32
+		{1737DA96-D347-45B6-A212-A587C6C6894C}.Debug|x86.Build.0 = Debug|Win32
+		{1737DA96-D347-45B6-A212-A587C6C6894C}.Release|x64.ActiveCfg = Release|x64
+		{1737DA96-D347-45B6-A212-A587C6C6894C}.Release|x64.Build.0 = Release|x64
+		{1737DA96-D347-45B6-A212-A587C6C6894C}.Release|x86.ActiveCfg = Release|Win32
+		{1737DA96-D347-45B6-A212-A587C6C6894C}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
