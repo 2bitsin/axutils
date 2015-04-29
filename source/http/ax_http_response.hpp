@@ -112,7 +112,9 @@ namespace ax {
                     _default_header ("Content-Length", length_);
                     _default_header ("Content-Type", mime_type::get ("bin").string ());
                 }
-                if (stream ().write (data_, std::intptr_t (size_)) != std::intptr_t (size_)) {
+                auto len_ = std::intptr_t (size_ * sizeof (_Ctype));
+                auto ptr_ = reinterpret_cast<char const *> (data_);
+                if (stream ().write (ptr_, len_) != len_) {
                     throw std::runtime_error ("Unable to send response");
                 }
                 return *this;
