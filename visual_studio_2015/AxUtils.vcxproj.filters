@@ -90,6 +90,18 @@
     <ClInclude Include="..\source\net\ax_tcp_socket.hpp">
       <Filter>Source Files\net</Filter>
     </ClInclude>
+    <ClInclude Include="..\source\etc\ax_endian.hpp">
+      <Filter>Source Files\etc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\etc\ax_exception.hpp">
+      <Filter>Source Files\etc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\etc\ax_iconv.hpp">
+      <Filter>Source Files\etc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\source\etc\ax_intrinsics.hpp">
+      <Filter>Source Files\etc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\source\http\ax_http_listener.cpp">

@@ -203,8 +203,12 @@
     <ClInclude Include="..\source\etc\ax_binary_ostream.hpp" />
     <ClInclude Include="..\source\etc\ax_buffer_writter.hpp" />
     <ClInclude Include="..\source\etc\ax_byte_swap.hpp" />
+    <ClInclude Include="..\source\etc\ax_endian.hpp" />
+    <ClInclude Include="..\source\etc\ax_exception.hpp" />
     <ClInclude Include="..\source\etc\ax_from_string.hpp" />
     <ClInclude Include="..\source\etc\ax_getline.hpp" />
+    <ClInclude Include="..\source\etc\ax_iconv.hpp" />
+    <ClInclude Include="..\source\etc\ax_intrinsics.hpp" />
     <ClInclude Include="..\source\etc\ax_memory.hpp" />
     <ClInclude Include="..\source\etc\ax_sha1.hpp" />
     <ClInclude Include="..\source\etc\ax_split.hpp" />

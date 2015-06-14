@@ -1,7 +1,7 @@
 #define _SCL_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 #include "ax_sha1.hpp"
-#include "ax_byte_swap.hpp"
+#include "ax_endian.hpp"
 #include <cstring>
 #include <algorithm>
 
@@ -83,7 +83,7 @@ void ax::util::sha1::_digest () {
     };
 
     for (auto t = 0; t < 16; ++t) 
-        w [t] = ax::util::host_to_network_byte_order (u32buff_ [t]);    
+        w [t] = ax::host_to_network (u32buff_ [t]);    
     for (auto t = 16; t < 80; ++t) 
         w [t] = _imp::bit_rotate_left<1> (w [t-3] ^ w [t-8] ^ w [t-14] ^ w [t-16]);  
     for (auto t = 0; t < 20; ++t)
@@ -110,7 +110,7 @@ void ax::util::sha1::_done () {
         std::fill (mbuffer_, mbuffer_ + 56, 0);
     }    
     reinterpret_cast<std::uint64_t &> (mbuffer_ [56]) =
-        ax::util::host_to_network_byte_order (length_);
+        ax::host_to_network (length_);
     _digest ();
     mfinal_ = true;
 }
